@@ -29,7 +29,7 @@ module Eclair
     end
 
     def command
-      hosts = [@instance.public_ip_address, @instance.private_ip_address].compact
+      hosts = [@instance.private_ip_address, @instance.public_ip_address].compact
       ports = config.ssh_ports
       ssh_options = config.ssh_options
       ssh_command = config.ssh_command
