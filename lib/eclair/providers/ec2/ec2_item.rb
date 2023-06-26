@@ -37,7 +37,8 @@ module Eclair
       key_cmd = config.ssh_keys[@instance.key_name] ? "-i #{config.ssh_keys[@instance.key_name]}" : ""
       format = config.exec_format
 
-      joined_cmd = hosts.map do |host|
+      ssm_cmd = "aws ssm start-session --target #{@instance.instance_id} --document-name AWS-StartInteractiveCommand --parameters command=bash"
+      ssh_cmds = hosts.map do |host|
         ports.map do |port|
           {
             "{ssh_command}" => ssh_command,
@@ -48,7 +49,8 @@ module Eclair
             "{host}"        => host,
           }.reduce(format) { |cmd,pair| cmd.sub(pair[0],pair[1].to_s) }
         end
-      end.join(" || ")
+      end
+      joined_cmd = ([ssm_cmd] + ssh_cmds).join(" || ")
       # puts joined_cmd
       "echo Attaching to #{Shellwords.escape(name)} \\[#{@instance.instance_id}\\] && #{joined_cmd}"
     end
